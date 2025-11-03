@@ -228,7 +228,7 @@
       result.innerHTML = '<div class="spinner"></div>';
 
       try {
-        const res = await fetch(${API_URL}?nip=${nip});
+        const res = await fetch(`${API_URL}?nip=${nip}`);
         const json = await res.json();
 
         if (!json.found) {
@@ -271,7 +271,7 @@
           </div>
         `;
       } catch (e) {
-        result.innerHTML = <p style="color:white;">⚠️ Terjadi kesalahan: ${e.message}</p>;
+        result.innerHTML = `<p style="color:white;">⚠️ Terjadi kesalahan: ${e.message}</p>`;
       }
     }
 
