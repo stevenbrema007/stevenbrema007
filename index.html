@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Dashboard Usulan Mutasi - Basarnas</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Arial, sans-serif;
+      background: linear-gradient(to right, #ff9800, #fb8c00);
+      color: #333;
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      width: 250px;
+      background: #ef6c00;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      padding: 20px;
+    }
+    .sidebar h2 { text-align: center; margin-bottom: 20px; font-size: 1.4em; }
+    .sidebar button {
+      background: none; border: none; color: white;
+      font-size: 1.1em; padding: 10px; text-align: left;
+      cursor: pointer; border-radius: 5px;
+      transition: background 0.3s ease;
+    }
+    .sidebar button:hover { background: rgba(255,255,255,0.2); }
+
+    /* Main Area */
+    .main { flex: 1; display: flex; flex-direction: column; overflow-y: auto; }
+
+    header {
+      background-color: rgba(0,0,0,0.1);
+      color: white; padding: 20px;
+      display: flex; align-items: center;
+      justify-content: center; gap: 20px; flex-wrap: wrap;
+    }
+    header img { height: 60px; }
+    header h1 { font-size: 1.8em; margin: 0; }
+
+    /* Dashboard Cards */
+    .dashboard {
+      display: flex; flex-wrap: wrap;
+      justify-content: center; gap: 20px;
+      padding: 40px 20px 20px;
+    }
+    .card {
+      background: white; border-radius: 10px;
+      padding: 20px; width: 200px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+      text-align: center;
+      transition: transform 0.2s ease;
+    }
+    .card:hover { transform: scale(1.05); }
+    .card h2 { font-size: 2.5em; margin: 0; }
+    .card p { margin: 5px 0 0; color: #777; }
+    .total { border-top: 5px solid #e65100; }
+    .diterima { border-top: 5px solid #43a047; }
+    .proses { border-top: 5px solid #fbc02d; }
+    .ditolak { border-top: 5px solid #e53935; }
+    .selesai { border-top: 5px solid #6a1b9a; }
+
+    /* Sections */
+    .section { padding: 30px; text-align: center; }
+    iframe {
+      border: none; width: 100%; height: 80vh;
+      border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+      background: white;
+    }
+
+    /* Search Section */
+    .search-container {
+      display: flex; flex-direction: column;
+      align-items: center; gap: 10px;
+    }
+    .search-container input {
+      padding: 10px; width: 300px; border-radius: 8px;
+      border: none; font-size: 1em;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+    .search-container button {
+      padding: 10px 25px; background-color: #ef6c00;
+      color: white; border: none; border-radius: 8px;
+      font-size: 1em; cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    .search-container button:hover { background-color: #d84315; }
+
+    /* Result Card */
+    .result-card {
+      background: white;
+      color: #333;
+      border-radius: 12px;
+      padding: 25px;
+      margin-top: 20px;
+      width: 360px;
+      text-align: left;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      animation: fadeIn 0.4s ease;
+    }
+    .result-card h3 {
+      margin-top: 0;
+      color: #ef6c00;
+      text-align: center;
+    }
+    .result-card p {
+      margin: 6px 0;
+      font-size: 1em;
+      border-bottom: 1px solid #eee;
+      padding-bottom: 4px;
+    }
+    .status-label {
+      display: inline-block;
+      padding: 5px 12px;
+      border-radius: 20px;
+      color: white;
+      font-weight: bold;
+      font-size: 0.9em;
+      text-transform: uppercase;
+    }
+    .status-diterima { background-color: #43a047; }
+    .status-proses { background-color: #fbc02d; color: #333; }
+    .status-ditolak { background-color: #e53935; }
+    .status-selesai { background-color: #6a1b9a; }
+
+    /* Loading spinner */
+    .spinner {
+      display: inline-block;
+      width: 28px;
+      height: 28px;
+      border: 3px solid rgba(255,255,255,0.3);
+      border-top: 3px solid white;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin-top: 10px;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 700px) {
+      .sidebar { width: 180px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="sidebar">
+    <h2>Menu</h2>
+    <button onclick="showSection('dashboardSection')">📊 Dashboard</button>
+    <button onclick="showSection('inputSection')">➕ Input Usulan</button>
+    <button onclick="showSection('searchSection')">🔍 Search</button>
+  </div>
+
+  <div class="main">
+    <header>
+      <img src="https://upload.wikimedia.org/wikipedia/id/thumb/5/5a/Logo_Basarnas.png/1024px-Logo_Basarnas.png" alt="Logo Basarnas" />
+      <h1>Dashboard Usulan Mutasi - BASARNAS</h1>
+    </header>
+
+    <div id="dashboardSection" class="section">
+      <div class="dashboard">
+        <div class="card total"><h2 id="total">0</h2><p>Total Usulan</p></div>
+        <div class="card diterima"><h2 id="diterima">0</h2><p>Usulan Diterima</p></div>
+        <div class="card proses"><h2 id="proses">0</h2><p>Usulan Proses</p></div>
+        <div class="card ditolak"><h2 id="ditolak">0</h2><p>Usulan Ditolak</p></div>
+        <div class="card selesai"><h2 id="selesai">0</h2><p>Usulan Selesai</p></div>
+      </div>
+    </div>
+
+    <div id="inputSection" class="section" style="display:none;">
+      <h2>Input Usulan Mutasi</h2>
+      <iframe src="https://tally.so/r/mJyv2R"></iframe>
+    </div>
+
+    <div id="searchSection" class="section" style="display:none;">
+      <h2>Cari Usulan Mutasi</h2>
+      <div class="search-container">
+        <input type="text" id="searchInput" placeholder="Masukkan NIP..." />
+        <button onclick="handleSearch()">Cari</button>
+        <div id="searchResult"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Ganti dengan URL Web App kamu (tidak perlu ubah kalau tidak buat deployment baru)
+    const API_URL = "https://script.google.com/macros/s/AKfycby0W0_0TIS4syfbTO6MRh1TeLC-VjALZQbSjY-zltdtPsJGdkr5CkE9E16BKpaZUCSPZw/exec";
+
+    function showSection(id) {
+      document.querySelectorAll('.section').forEach(s => s.style.display = 'none');
+      document.getElementById(id).style.display = 'block';
+    }
+
+    async function loadDashboard() {
+      try {
+        const res = await fetch(API_URL);
+        const json = await res.json();
+        if (json.dashboard) {
+          document.getElementById("total").innerText = json.dashboard.total;
+          document.getElementById("diterima").innerText = json.dashboard.diterima;
+          document.getElementById("proses").innerText = json.dashboard.proses;
+          document.getElementById("ditolak").innerText = json.dashboard.ditolak;
+          document.getElementById("selesai").innerText = json.dashboard.selesai;
+        }
+      } catch (e) {
+        console.error("Gagal load dashboard:", e);
+      }
+    }
+
+    async function handleSearch() {
+      const nip = document.getElementById("searchInput").value.trim();
+      const result = document.getElementById("searchResult");
+
+      if (!nip) {
+        result.innerHTML = "<p style='color:white;'>Masukkan NIP terlebih dahulu.</p>";
+        return;
+      }
+
+      result.innerHTML = '<div class="spinner"></div>';
+
+      try {
+        const res = await fetch(${API_URL}?nip=${nip});
+        const json = await res.json();
+
+        if (!json.found) {
+          result.innerHTML = "<p style='color:white;'>❌ Data dengan NIP tersebut tidak ditemukan.</p>";
+          return;
+        }
+
+        const d = json.data;
+        const get = (...keys) => {
+          for (let k of keys) {
+            const val = d[k];
+            if (val !== undefined && val !== "") return val;
+          }
+          return "-";
+        };
+
+        // --- Perbaikan untuk status proses ---
+        const statusValue = get("Status Proses", "status proses", "Status", "status");
+        const status = String(statusValue || "-").toLowerCase();
+
+        let statusClass = "";
+        if (status.includes("terima")) statusClass = "status-diterima";
+        else if (status.includes("proses")) statusClass = "status-proses";
+        else if (status.includes("tolak")) statusClass = "status-ditolak";
+        else if (status.includes("selesai")) statusClass = "status-selesai";
+
+        result.innerHTML = `
+          <div class="result-card">
+            <h3>Hasil Pencarian</h3>
+            <p><strong>NIP:</strong> ${get("NIP", "nip")}</p>
+            <p><strong>Nama:</strong> ${get("Nama Lengkap", "Nama", "nama")}</p>
+            <p><strong>Jenis Mutasi:</strong> ${get("Jenis Mutasi", "jenis_mutasi", "Mutasi")}</p>
+            <p><strong>Unit Kerja:</strong> ${get("Unit Kerja", "unit_kerja", "Satker")}</p>
+            <p><strong>Jabatan:</strong> ${get("Jabatan Saat Ini", "jabatan", "Posisi")}</p>
+            <p><strong>Status Proses:</strong> 
+              <span class="status-label ${statusClass}">
+                ${statusValue || "-"}
+              </span>
+            </p>
+          </div>
+        `;
+      } catch (e) {
+        result.innerHTML = <p style="color:white;">⚠️ Terjadi kesalahan: ${e.message}</p>;
+      }
+    }
+
+    loadDashboard();
+  </script>
+</body>
+</html>
